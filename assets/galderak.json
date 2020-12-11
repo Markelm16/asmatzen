@@ -1,0 +1,25 @@
+[
+    {
+        "type": "flags"
+    },
+    {
+        "type": "maths"
+    },
+    {
+        "directory": "mountains",
+        "title": "Zein mendi da hau?",
+        "type": "images",
+        "answers":[
+            "Anboto",
+            "Udalaitz",
+            "Gorbea",
+            "Hiru Erregeen Mahaia",
+            "Kurtzebarri",
+            "Txindoki",
+            "Aiako Harria",
+            "Aitzgorri",
+            "Hernio"
+        ]
+    }
+
+]
