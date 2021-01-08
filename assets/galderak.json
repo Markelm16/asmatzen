@@ -1,6 +1,7 @@
 [
     {
-        "type": "flags"
+        "type": "flags",
+        "title": "Zein estatutako bandera da hau?"
     },
     {
         "type": "maths"

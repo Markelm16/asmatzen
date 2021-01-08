@@ -4,16 +4,60 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    MyApp(),
+  );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool playing = false;
   @override
   Widget build(BuildContext context) {
-    return Center(
-        child: ElevatedButton(
-      child: Text("Jokatu!"),
-    ));
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('asmatzen'),
+        ),
+        body: Container(
+          margin: EdgeInsets.all(10),
+          child: FutureBuilder<List<Question>>(
+            future: QuizModel.loadQuestions(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                return Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: ChangeNotifierProvider(
+                    create: (context) => QuizModel(snapshot.data),
+                    builder: (context, child) {
+                      if (!playing) {
+                        return Container(
+                            child: ElevatedButton(
+                          child:
+                              Text("Jokatu!", textDirection: TextDirection.ltr),
+                          onPressed: () {
+                            setState(() {
+                              playing = true;
+                            });
+                          },
+                        ));
+                      } else {
+                        return QuizWidget();
+                      }
+                    },
+                  ),
+                );
+              }
+              return CircularProgressIndicator();
+            },
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -36,8 +80,11 @@ class QuizWidget extends StatelessWidget {
                     .toList(),
               );
             }
-            return QuestionWidget(
-              question: value.questions[value.currectQuestion],
+            return SizedBox(
+              height: 400,
+              child: QuestionWidget(
+                question: value.questions[value.currectQuestion],
+              ),
             );
           },
         )
@@ -60,27 +107,36 @@ class _QuestionState extends State<QuestionWidget> {
     return Column(
       children: [
         Text(widget.question.title),
-        if (widget.question.image != null) Image(image: widget.question.image),
-        ListView(
-          children: widget.question.answers
-              .map(
-                (a) => ElevatedButton(
-                  child: Text(a),
-                  onPressed: () {
-                    // Erantzuna zuzena da
-                    if (widget.question.correctAnswer ==
-                        widget.question.answers.indexOf(a)) {
-                      Provider.of<QuizModel>(context, listen: false)
-                          .setCorrect();
-                      // Erantzuna ez da zuzena
-                    } else {
-                      Provider.of<QuizModel>(context, listen: false)
-                          .setIncorrect();
-                    }
-                  },
-                ),
-              )
-              .toList(),
+        if (widget.question.image != null)
+          Image(
+            image: widget.question.image,
+          ),
+        //if (widget.question.image != null) Image(image: widget.question.image),
+        SizedBox(
+          height: 200,
+          child: ListView(
+            children: widget.question.answers
+                .map(
+                  (a) => Expanded(
+                    child: ElevatedButton(
+                      child: Text(a),
+                      onPressed: () {
+                        // Erantzuna zuzena da
+                        if (widget.question.correctAnswer ==
+                            widget.question.answers.indexOf(a)) {
+                          Provider.of<QuizModel>(context, listen: false)
+                              .setCorrect();
+                          // Erantzuna ez da zuzena
+                        } else {
+                          Provider.of<QuizModel>(context, listen: false)
+                              .setIncorrect();
+                        }
+                      },
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
         )
       ],
     );

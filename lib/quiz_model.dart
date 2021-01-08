@@ -4,10 +4,16 @@ import 'dart:math';
 
 import 'package:asmatzen/question.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 class QuizModel extends ChangeNotifier {
   int currectQuestion = 0;
   List<Question> questions;
+  QuizModel(List<Question> qs) {
+    questions = qs;
+  }
 
   void setCorrect() {
     questions[currectQuestion].isCorrect = true;
@@ -21,26 +27,33 @@ class QuizModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void loadQuestions() {
-    List<Map<String, dynamic>> questionsMap =
-        jsonDecode(File('/assets/galderak.json').readAsStringSync());
+  static Future<List<Question>> loadQuestions() async {
+    List<Question> questions = [];
+    //List<Map<String, dynamic>> questionsMap =
+    //    jsonDecode(File('/assets/galderak.json').readAsStringSync());
+
+    List<dynamic> questionsMap =
+        jsonDecode(await rootBundle.loadString('assets/galderak.json'));
     for (int i = 0; i < 10; i++) {
       int random = Random().nextInt(questionsMap.length);
-      questions[i] = loadQuestion(questionsMap[i]);
+      questions.add(await loadQuestion(questionsMap[random]));
     }
+    return questions;
   }
 
-  Question loadQuestion(Map<String, dynamic> data) {
+  static Future<Question> loadQuestion(Map<String, dynamic> data) async {
     switch (data['type']) {
       case 'maths':
         return generateMathQuestion();
-      case 'mountains':
+      case 'flags':
+        return await generateFlagQuestion(data['title']);
+      case 'images':
         return generateImagesQuestion(
-            data['answers'], data['directory'], data['title']);
+            data['answers'].cast<String>(), data['directory'], data['title']);
     }
   }
 
-  Question generateMathQuestion() {
+  static Question generateMathQuestion() {
     var r = Random();
     int firstInt = r.nextInt(30);
     int secondInt = r.nextInt(50);
@@ -52,13 +65,11 @@ class QuizModel extends ChangeNotifier {
     ];
     answers.shuffle();
     var correctAnswers = answers.indexOf((firstInt + secondInt).toString());
-    return Question()
-      ..answers = answers
-      ..correctAnswer = correctAnswers
-      ..title = title;
+    return Question(
+        answers: answers, correctAnswer: correctAnswers, title: title);
   }
 
-  Question generateImagesQuestion(
+  static Question generateImagesQuestion(
       List<String> answers, String directory, String title) {
     Random r = Random();
     var i0 = r.nextInt(answers.length);
@@ -79,10 +90,34 @@ class QuizModel extends ChangeNotifier {
     }
     var answ = [answers[i0], answers[i1], answers[i2]];
     var image = FileImage(File(directory + '/' + correctTitle + '.jpg'));
-    return Question()
-      ..answers = answ
-      ..correctAnswer = correct
-      ..image = image
-      ..title = title;
+    return Question(
+        answers: answ, correctAnswer: correct, image: image, title: title);
+  }
+
+  static Future<Question> generateFlagQuestion(String title) async {
+    List<dynamic> countriesMap =
+        jsonDecode(await rootBundle.loadString('assets/countries.json'));
+    Random r = Random();
+    List<Map<String, dynamic>> answers = [];
+    for (int i = 0; i < 3; i++) {
+      var a = r.nextInt(countriesMap.length);
+      answers.add(countriesMap[a]);
+    }
+    int correct = r.nextInt(3);
+
+    List<String> answersEus = [];
+    for (var a in answers) {
+      answersEus.add(a['label_eu']);
+    }
+    var enLabel = answers[correct]['label_en'];
+
+    PictureProvider pictureProvider = NetworkPicture(SvgPicture.svgByteDecoder,
+        'https://upload.wikimedia.org/wikipedia/commons/f/fe/$enLabel.svg');
+
+    return Question(
+        answers: answersEus,
+        correctAnswer: correct,
+        title: title,
+        svgPicture: pictureProvider);
   }
 }
