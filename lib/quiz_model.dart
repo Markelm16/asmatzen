@@ -89,7 +89,11 @@ class QuizModel extends ChangeNotifier {
         break;
     }
     var answ = [answers[i0], answers[i1], answers[i2]];
-    var image = FileImage(File(directory + '/' + correctTitle + '.jpg'));
+    var image = AssetImage('assets/' +
+        directory +
+        '/' +
+        correctTitle.toLowerCase().replaceAll(" ", "_") +
+        '.jpg');
     return Question(
         answers: answ, correctAnswer: correct, image: image, title: title);
   }
@@ -110,9 +114,14 @@ class QuizModel extends ChangeNotifier {
       answersEus.add(a['label_eu']);
     }
     var enLabel = answers[correct]['label_en'];
+    String code = answers[correct]['code'].toString().toLowerCase();
 
-    PictureProvider pictureProvider = NetworkPicture(SvgPicture.svgByteDecoder,
-        'https://upload.wikimedia.org/wikipedia/commons/f/fe/$enLabel.svg');
+    //PictureProvider pictureProvider = NetworkPicture(SvgPicture.svgByteDecoder,
+    //    'https://upload.wikimedia.org/wikipedia/commons/f/fe/$enLabel.svg');
+    //PictureProvider pictureProvider = NetworkPicture(SvgPicture.svgByteDecoder,
+    //    'https://en.wikipedia.org/wiki/File:Flag_of_$enLabel.svg');
+    PictureProvider pictureProvider = NetworkPicture(
+        SvgPicture.svgByteDecoder, 'https://flagcdn.com/$code.svg');
 
     return Question(
         answers: answersEus,
