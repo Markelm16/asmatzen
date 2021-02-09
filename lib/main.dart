@@ -6,23 +6,23 @@ import 'package:provider/provider.dart';
 
 void main() {
   runApp(
-    MyApp(),
+    Hasiera(),
   );
 }
 
-class MyApp extends StatefulWidget {
+class Hasiera extends StatefulWidget {
   @override
-  _MyAppState createState() => _MyAppState();
+  _HasieraState createState() => _HasieraState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _HasieraState extends State<Hasiera> {
   bool playing = false;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('asmatzen'),
+          title: Text('Asmatzen'),
         ),
         body: Container(
           margin: EdgeInsets.all(10),

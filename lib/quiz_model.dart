@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:asmatzen/question.dart';
@@ -29,8 +28,6 @@ class QuizModel extends ChangeNotifier {
 
   static Future<List<Question>> loadQuestions() async {
     List<Question> questions = [];
-    //List<Map<String, dynamic>> questionsMap =
-    //    jsonDecode(File('/assets/galderak.json').readAsStringSync());
 
     List<dynamic> questionsMap =
         jsonDecode(await rootBundle.loadString('assets/galderak.json'));
